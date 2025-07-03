@@ -40,6 +40,9 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Sleep
+        run: sleep 13
+
   plan-tst:
     name: Plan TST Deployment
     runs-on: ubuntu-latest
@@ -76,6 +79,9 @@ jobs:
           path: tst.tfplan
           retention-days: 30
 
+      - name: Sleep
+        run: sleep 31
+
   deploy-tst:
     name: Deploy to TST Environment
     runs-on: ubuntu-latest
@@ -108,6 +114,9 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+      - name: Sleep
+        run: sleep 85
 
   plan-prd:
     name: Plan PRD Deployment
@@ -143,6 +152,9 @@ jobs:
           name: prd-terraform-plan
           path: prd.tfplan
           retention-days: 30
+
+      - name: Sleep
+        run: sleep 29
 
   deploy-prd:
     name: Deploy to PRD Environment
