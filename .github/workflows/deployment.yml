@@ -59,7 +59,7 @@ jobs:
           TF_BACKEND_CONFIG: ${{ secrets.TF_BACKEND_CONFIG_TST }}
 
       - name: Terraform Plan TST
-        run: terraform plan -var-file="environments/tst.tfvars" -out=tst.tfplan
+        run: terraform plan -var-file="tst.tfvars" -out=tst.tfplan
         env:
           # Add your cloud provider credentials here
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
@@ -97,7 +97,7 @@ jobs:
           TF_BACKEND_CONFIG: ${{ secrets.TF_BACKEND_CONFIG_PRD }}
 
       - name: Terraform Plan PRD
-        run: terraform plan -var-file="environments/prd.tfvars" -out=prd.tfplan
+        run: terraform plan -var-file="prd.tfvars" -out=prd.tfplan
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
