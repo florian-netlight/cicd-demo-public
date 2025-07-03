@@ -40,11 +40,10 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-  deploy-tst:
-    name: Deploy to TST Environment
+  plan-tst:
+    name: Plan TST Deployment
     runs-on: ubuntu-latest
     needs: terraform-validate
-    environment: TST
 
     steps:
       - name: Checkout code
@@ -62,13 +61,45 @@ jobs:
           TF_BACKEND_CONFIG: ${{ secrets.TF_BACKEND_CONFIG_TST }}
 
       - name: Terraform Plan TST
-        run: terraform plan -var-file="tst.tfvars" -out=tst.tfplan
+        run: terraform plan -var-file="environments/tst.tfvars" -out=tst.tfplan
         env:
           # Add your cloud provider credentials here
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tst-terraform-plan
+          path: tst.tfplan
+          retention-days: 30
+
+  deploy-tst:
+    name: Deploy to TST Environment
+    runs-on: ubuntu-latest
+    needs: plan-tst
+    environment: TST
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tst-terraform-plan
+
+      - name: Terraform Init
+        run: terraform init
+        env:
+          TF_BACKEND_CONFIG: ${{ secrets.TF_BACKEND_CONFIG_TST }}
 
       - name: Terraform Apply TST
         run: terraform apply -auto-approve tst.tfplan
@@ -99,7 +130,7 @@ jobs:
           TF_BACKEND_CONFIG: ${{ secrets.TF_BACKEND_CONFIG_PRD }}
 
       - name: Terraform Plan PRD
-        run: terraform plan -var-file="prd.tfvars" -out=prd.tfplan
+        run: terraform plan -var-file="environments/prd.tfvars" -out=prd.tfplan
         env:
           ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
